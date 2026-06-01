@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="lineGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <radialGradient id="nodeGlow1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="60%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </radialGradient>
+    <radialGradient id="nodeGlow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e879f9"/>
+      <stop offset="60%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Hexagon outline -->
+  <path d="M50 5 L88 27 L88 73 L50 95 L12 73 L12 27 Z" 
+        fill="none" 
+        stroke="url(#lineGrad)" 
+        stroke-width="4"
+        stroke-linejoin="round"/>
+  
+  <!-- Circuit lines - from bottom spreading out -->
+  <g fill="none" stroke="url(#lineGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left line - wide to the left -->
+    <path d="M50 75 L30 55 L30 40"/>
+    <!-- Right line - wide to the right -->
+    <path d="M50 75 L70 55 L70 40"/>
+  </g>
+  
+  <!-- Center line - solid cyan, drawn before nodes -->
+  <path d="M50 75 L50 31" stroke="#22d3ee" stroke-width="4" stroke-linecap="round" fill="none"/>
+  
+  <!-- Glowing nodes with purple - wide spread -->
+  <circle cx="30" cy="36" r="6" fill="url(#nodeGlow1)"/>
+  <circle cx="50" cy="24" r="7" fill="url(#nodeGlow2)"/>
+  <circle cx="70" cy="36" r="6" fill="url(#nodeGlow1)"/>
+  
+  <!-- Inner bright core of nodes -->
+  <circle cx="30" cy="36" r="2.5" fill="#f0abfc"/>
+  <circle cx="50" cy="24" r="3" fill="#f5d0fe"/>
+  <circle cx="70" cy="36" r="2.5" fill="#f0abfc"/>
+</svg>

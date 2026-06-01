@@ -1,0 +1,29 @@
+# Cloudflare Pages configuration for OpenNext
+# See: https://opennext.js.org/cloudflare
+
+name = "builderai-tools"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".open-next"
+
+[vars]
+SUPABASE_URL = "https://zqxqlcjkwftrdwlhlhom.supabase.co"
+SUPABASE_ANON_KEY = "sb_publishable_UT3NXp1J2u3x6xj9CPKMJg_YM4NlegK"
+NEXT_PUBLIC_SUPABASE_URL = "https://zqxqlcjkwftrdwlhlhom.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_UT3NXp1J2u3x6xj9CPKMJg_YM4NlegK"
+NEXT_PUBLIC_SITE_URL = "https://builderai.tools"
+# Public Turnstile site key. Cloudflare designs site keys to be visible in
+# client HTML, so committing this value is intentional. It must be present
+# at build time so `next build` can inline it into the Turnstile widget on
+# /admin-signin, /submit, /claim/<id>, and the rating form on tool pages.
+# The matching TURNSTILE_SECRET_KEY is server-only and lives in the Pages
+# dashboard env, NOT here.
+NEXT_PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAADLlTUEQYi-jBE4U"
+RESEND_FROM_EMAIL = "notifications@builderai.tools"
+
+# KV namespace for /api/submit anonymous-submission rate limiting.
+# The namespace is titled BUILDERAI_RATE_LIMIT (created via wrangler);
+# the binding name RATE_LIMIT_KV is what the Worker code references.
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "a91387dc07ec47348e6f435608e06016"

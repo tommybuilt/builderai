@@ -1,0 +1,17 @@
+{
+  "name": "builderai-tool-discovery",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "secret:supabase": "wrangler secret put SUPABASE_SERVICE_KEY",
+    "secret:anthropic": "wrangler secret put ANTHROPIC_API_KEY",
+    "secret:auth": "wrangler secret put WORKER_AUTH_KEY"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241205.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^3.99.0"
+  }
+}
