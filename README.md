@@ -1,73 +1,40 @@
 # BuilderAI.tools
 
-A curated directory of open-source and developer-focused AI tools, for engineers
-who want to actually ship.
+A curated directory of open-source and developer-focused AI tools, for engineers who want to actually ship.
 
-> Curated portfolio snapshot. This is a public snapshot of a real project built
-> and operated by TPS Worldwide LLC. Active development happens in a private
-> repository.
+## What it does
 
-## Overview
+BuilderAI.tools catalogs AI tools as structured records, each with license, platform, GPU and VRAM requirements, difficulty, open-source and self-hosted flags, tags, and an aggregate rating, organized by category and surfaced through server-rendered tool and category pages, filters, and search. Anyone can submit a tool through a bot-checked, rate-limited form that lands in a moderation queue, and leave a star rating confirmed by a magic link. Admins moderate tools, submissions, reviews, blog posts, users, and bans from a dedicated panel. The site also ships a blog and a chatbot that answers only from the site's own pages.
 
-BuilderAI.tools catalogs hundreds of AI projects across categories like
-text-to-speech, computer vision, vector databases, AI agents, LLM inference,
-and code assistants. Each tool gets a profile page with structured metadata
-(license, platform, GPU requirements, pricing model), public reviews and
-ratings, related tools, and a long-form description. The site adds a blog of
-practical AI-engineering explainers, an anonymous submission flow with
-Turnstile and per-IP rate limiting, and an admin panel for moderation.
+## Tech stack
 
-## Features
+- Next.js 15 (App Router) and React 18, TypeScript, built for Cloudflare with OpenNext and served behind a Pages proxy worker
+- Supabase (Postgres plus Auth) as the data and identity layer
+- Tailwind CSS with the typography plugin, react-markdown for content, no component library
+- Cloudflare Turnstile for bot protection, Cloudflare KV for submission rate limits, Resend for transactional email
+- OpenAI (`gpt-4o-mini`) powers the on-site chatbot; a separate cron Worker uses the Anthropic Messages API to draft new directory entries
 
-- **Browsable catalog**: tools indexed by category and tag, with filters for
-  open-source, self-hosted, offline-capable, GPU-required, and license.
-- **Reviews and ratings**: anonymous and authenticated review flow with a
-  magic-link finalize step, anti-spam checks, and a `pending_ratings` table
-  with 24-hour expiry.
-- **Public submissions**: `/api/submit` accepts new tool suggestions with
-  Cloudflare Turnstile validation and 3-per-IP-per-day rate limiting via a
-  Cloudflare KV namespace.
-- **Admin panel** (`/admin`): tool, category, submission, review, blog, user,
-  and ban management, plus a site-settings JSONB store for things like the
-  admin-email allowlist.
-- **Blog**: server-rendered articles backed by Supabase, with related-tool
-  cross-links and per-post tags.
-- **Email**: Resend HTTP API integration for submission acknowledgements,
-  approval emails, and admin notifications.
+## Key features
 
-## Stack
-
-- **Framework**: Next.js (App Router), React, TypeScript
-- **Styling**: Tailwind CSS, Radix UI primitives
-- **Auth and data**: Supabase (Postgres + Auth)
-- **Hosting**: Cloudflare Pages via OpenNext, plus a sibling Cloudflare Worker
-  for SSR
-- **Email**: Resend, called directly over HTTPS for runtime portability
-- **Bot protection**: Cloudflare Turnstile
-- **Storage**: Cloudflare KV for rate-limit counters
+- Structured catalog with a filter panel over license, platform, and the open-source, self-hosted, offline, and GPU flags, backed by Postgres with GIN-indexed tags
+- Public anonymous submissions: Turnstile verification, a three-per-IP daily rate limit in KV, a ban check, and an insert into a moderation queue with submitter and admin emails
+- Reviews and ratings with a magic-link finalize flow and a time-limited pending-rating record
+- An admin panel for tools, categories, submissions, reviews, blog, users with IP history, bans, and a settings store
+- A blog backed by Postgres with per-post tags and related-tool cross-links
+- A retrieval-grounded chatbot that fetches the live sitemap, selects relevant pages, prompts the model to answer only from that content, and strips any link that is not an on-site URL
+- An automated weekly tool-discovery Worker that asks a model for new open-source tools, validates and de-duplicates them, and inserts them as drafts for human review
 
 ## Architecture notes
 
-- **Database design**: 13 production tables documented in
-  [`supabase/schema.sql`](./supabase/schema.sql). The schema enforces correctness
-  at the database layer (CHECK constraints for email format, rating range,
-  ban-type-matches-target column, lowercase emails) rather than relying on
-  application code.
-- **Admin gate**: `is_admin()` reads an email allowlist from a JSONB
-  `site_settings` row. The middleware layer applies a second `profiles.role`
-  check so the gate is enforced both in the API and at the request edge.
-- **Build pattern**: OpenNext for Cloudflare compiles the Next.js app into a
-  Worker SSR bundle plus a static-asset bundle served by Pages. `wrangler.toml`
-  pins the public-by-design env vars (Supabase publishable key, Turnstile
-  site key) at the public visibility boundary.
-- **SECURITY DEFINER convention**: every Postgres trigger function declares
-  `SET search_path = public` before `AS $$`, with schema-qualified table
-  references in the body, to avoid an empty-search-path foot-gun documented
-  in [`CLAUDE.md`](./CLAUDE.md).
-- **Seed data**: open-source tool catalog and blog content live in
-  `supabase/seed-tools-batch-*.sql` and `supabase/seed-blog.sql` for
-  reproducibility.
+- Rendering is Next.js App Router SSR compiled by OpenNext into a Cloudflare Worker, fronted by a hand-written Pages proxy that rewrites origin headers back to the public host and forces www to apex.
+- Correctness is pushed into the database: the schema uses CHECK constraints for email format, rating and difficulty ranges, and ban-target consistency, and access control runs through Postgres functions and row-level policies rather than living only in application code.
+- Two AI providers do two different jobs: OpenAI answers user questions in the chatbot under a strict answer-only-from-provided-content prompt, while Anthropic drafts candidate directory entries in a background cron Worker. Discovered tools are never published directly; they land as drafts for review.
+- Submissions are defended in depth: Turnstile, a per-IP daily KV rate limit, and a ban check all run before anything is written.
 
-## License
+## Live site
 
-MIT. See [LICENSE](LICENSE).
+https://builderai.tools
+
+## Status
+
+This is a public snapshot of a private working repository, captured at a point in time. It reflects the real code but omits configuration, secrets, and ongoing changes that live in the private repo. The schema file here is a reference snapshot and does not include the row-level policies and database functions, which live in the private repo. Built by tommybuilt: https://tommybuilt.dev
